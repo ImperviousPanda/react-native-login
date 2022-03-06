@@ -3,6 +3,8 @@ import * as Linking from "expo-linking";
 import Amplify from "aws-amplify";
 import Login from "./src/Login";
 import Home from "./src/Home";
+import VerifyPhoneNumber from "./src/VerifyPhoneNumber";
+import UpdatePhoneNumber from "./src/UpdatePhoneNumber";
 
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
@@ -14,6 +16,22 @@ import {
   COGNITO_USER_POOL_WEB_CLIENT_ID,
   OAUTH_DOMAIN,
 } from "@env";
+import * as WebBrowser from "expo-web-browser";
+
+async function urlOpener(url, redirectUrl) {
+  if (redirectUrl.includes("/--/sign-out")) {
+    return Promise.resolve(true);
+  }
+  const { type, url: newUrl } = await WebBrowser.openAuthSessionAsync(
+    url,
+    redirectUrl
+  );
+
+  if (type === "success" && Platform.OS === "ios") {
+    WebBrowser.dismissBrowser();
+    return Linking.openURL(newUrl);
+  }
+}
 
 const Stack = createNativeStackNavigator();
 
@@ -31,6 +49,7 @@ const awsconfig = {
     redirectSignIn: Linking.createURL("sign-in"),
     redirectSignOut: Linking.createURL("sign-out"),
     responseType: "code",
+    urlOpener,
   },
   federationTarget: "COGNITO_USER_POOLS",
   aws_cognito_username_attributes: ["EMAIL"],
@@ -58,6 +77,8 @@ function App() {
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         <Stack.Screen name="Home" component={Home} />
         <Stack.Screen name="Login" component={Login} />
+        <Stack.Screen name="UpdatePhoneNumber" component={UpdatePhoneNumber} />
+        <Stack.Screen name="VerifyPhoneNumber" component={VerifyPhoneNumber} />
       </Stack.Navigator>
     </NavigationContainer>
   );

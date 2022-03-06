@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { Button, SafeAreaView } from "react-native";
-import { Auth, Hub } from "aws-amplify";
+import { Auth, Hub, API } from "aws-amplify";
 
 function Login({ navigation }) {
   function getUser() {
